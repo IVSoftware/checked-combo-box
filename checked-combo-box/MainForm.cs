@@ -26,19 +26,13 @@ namespace checked_combo_box
             DisplayMember = "Text";
 
             // Add items for testing purposes
-            CheckBoxItems.Add(new CheckBox { Text = "test 1" });
-            CheckBoxItems.Add(new CheckBox { Text = "test tube"});
-            CheckBoxItems.Add(new CheckBox { Text = "goat" });
-            CheckBoxItems.Add(new CheckBox { Text = "test 3" });
-            CheckBoxItems.Add(new CheckBox { Text = "asdasd" });
-            CheckBoxItems.Add(new CheckBox { Text = "asdasd" });
+            CheckBoxItems.Add(new CheckBox { Text = "Essential" });
+            CheckBoxItems.Add(new CheckBox { Text = "Primary"});
+            CheckBoxItems.Add(new CheckBox { Text = "Evoke" });
+            CheckBoxItems.Add(new CheckBox { Text = "Retain" });
+            CheckBoxItems.Add(new CheckBox { Text = "Model" });
+            CheckBoxItems.Add(new CheckBox { Text = "Personality" });
         }
-        protected override void OnTextChanged(EventArgs e)
-        {
-            base.OnTextChanged(e);
-            if(IsHandleCreated) BeginInvoke(new Action(()=> updateText()));
-        }
-
         protected override void OnCreateControl()
         {
             base.OnCreateControl();
@@ -47,25 +41,6 @@ namespace checked_combo_box
             var aspirant = (IntPtr)mi?.Invoke(this, new object[] { });
             _hwndList = aspirant;
         }
-        protected override void OnDrawItem(DrawItemEventArgs e)
-        {
-            base.OnDrawItem(e);
-            CheckBox checkbox;
-            checkbox = CheckBoxItems[e.Index];
-            checkbox.Size = e.Bounds.Size;
-
-            POINT p = new POINT(e.Bounds.Left, e.Bounds.Top);
-            ClientToScreen(_hwndList, ref p);
-            checkbox.Tag = new Rectangle(
-                new Point(p.X, p.Y),
-                e.Bounds.Size);
-            using (var bitmap = new Bitmap(e.Bounds.Width, e.Bounds.Height))
-            {
-                checkbox.DrawToBitmap(bitmap, new Rectangle(Point.Empty, e.Bounds.Size));
-                e.Graphics.DrawImage(bitmap, e.Bounds);
-            }
-        }
-
         public bool PreFilterMessage(ref Message m)
         {
             // Debug.WriteLine(m);
@@ -89,7 +64,7 @@ namespace checked_combo_box
                             // Hit test.
                             // - Keep open if checkbox toggled.
                             // - Otherwise close without toggling.
-                            if(delta < 30)
+                            if (delta < 30)
                             {
                                 checkbox.Checked = !checkbox.Checked;
                                 SendMessage(Handle, CB_SETCURSEL, CheckBoxItems.IndexOf(checkbox), 0);
@@ -98,13 +73,35 @@ namespace checked_combo_box
                             }
                         }
                         break;
-                    default:
-                        break;
                 }
             }
             return false;
         }
 
+
+        protected override void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+            if(IsHandleCreated) BeginInvoke(new Action(()=> updateText()));
+        }
+        protected override void OnDrawItem(DrawItemEventArgs e)
+        {
+            base.OnDrawItem(e);
+            CheckBox checkbox;
+            checkbox = CheckBoxItems[e.Index];
+            checkbox.Size = e.Bounds.Size;
+
+            POINT p = new POINT(e.Bounds.Left, e.Bounds.Top);
+            ClientToScreen(_hwndList, ref p);
+            checkbox.Tag = new Rectangle(
+                new Point(p.X, p.Y),
+                e.Bounds.Size);
+            using (var bitmap = new Bitmap(e.Bounds.Width, e.Bounds.Height))
+            {
+                checkbox.DrawToBitmap(bitmap, new Rectangle(Point.Empty, e.Bounds.Size));
+                e.Graphics.DrawImage(bitmap, e.Bounds);
+            }
+        }
         IntPtr _hwndList;
         // https://github.com/tpn/winsdk-10/blob/master/Include/10.0.10240.0/um/WinUser.h
         const int WM_MOUSEMOVE = 0x0200;
