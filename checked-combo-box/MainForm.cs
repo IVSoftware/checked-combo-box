@@ -18,9 +18,9 @@ namespace checked_combo_box
         public ComboBoxEx()
         {
             DrawMode = DrawMode.OwnerDrawFixed;
-            DoubleBuffered= true;
+            DoubleBuffered = true;
             Application.AddMessageFilter(this);
-            Disposed += (sender, e) =>Application.RemoveMessageFilter(this);
+            Disposed += (sender, e) => Application.RemoveMessageFilter(this);
 
             DisplayMember = "Text";
 
@@ -37,8 +37,7 @@ namespace checked_combo_box
             base.OnCreateControl();
             // Get the handle of the listbox
             var mi = typeof(ComboBox).GetMethod("GetListHandle", BindingFlags.NonPublic | BindingFlags.Instance);
-            var aspirant = (IntPtr)mi?.Invoke(this, new object[] { });
-            _hwndList = aspirant;
+            _hwndList = (IntPtr)mi?.Invoke(this, new object[] { });
         }
         public bool PreFilterMessage(ref Message m)
         {
@@ -98,7 +97,8 @@ namespace checked_combo_box
                 new Point(p.X, p.Y),
                 e.Bounds.Size);
             
-            e.Graphics.FillRectangle(e.State.Equals(DrawItemState.Selected) ? Brushes.CornflowerBlue : Brushes.White, e.Bounds);
+            e.Graphics.FillRectangle(
+                e.State.Equals(DrawItemState.Selected) ? Brushes.CornflowerBlue : Brushes.White, e.Bounds);
             using (var bitmap = new Bitmap(checkbox.Size.Width, checkbox.Size.Height))
             {
                 checkbox.DrawToBitmap(bitmap, new Rectangle(Point.Empty, e.Bounds.Size));
