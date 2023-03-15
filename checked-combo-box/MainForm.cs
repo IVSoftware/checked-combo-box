@@ -22,16 +22,15 @@ namespace checked_combo_box
             Application.AddMessageFilter(this);
             Disposed += (sender, e) =>Application.RemoveMessageFilter(this);
 
-            DataSource = CheckBoxItems;
             DisplayMember = "Text";
 
             // Add items for testing purposes
-            CheckBoxItems.Add(new CheckBox { Text = "Essential", BackColor = Color.White });
-            CheckBoxItems.Add(new CheckBox { Text = "Primary", BackColor = Color.White });
-            CheckBoxItems.Add(new CheckBox { Text = "Evoke", BackColor = Color.White });
-            CheckBoxItems.Add(new CheckBox { Text = "Retain", BackColor = Color.White });
-            CheckBoxItems.Add(new CheckBox { Text = "Model", BackColor = Color.White });
-            CheckBoxItems.Add(new CheckBox { Text = "Personality", BackColor = Color.White });
+            Items.Add(new CheckBox { Text = "Essential", BackColor = Color.White });
+            Items.Add(new CheckBox { Text = "Primary", BackColor = Color.White });
+            Items.Add(new CheckBox { Text = "Evoke", BackColor = Color.White });
+            Items.Add(new CheckBox { Text = "Retain", BackColor = Color.White });
+            Items.Add(new CheckBox { Text = "Model", BackColor = Color.White });
+            Items.Add(new CheckBox { Text = "Personality", BackColor = Color.White });
         }
         protected override void OnCreateControl()
         {
@@ -54,8 +53,11 @@ namespace checked_combo_box
                         break;
                     case WM_LBUTTONDOWN:
                         var capture = MousePosition;
+                        var checkBoxItems = Items
+                            .Cast<CheckBox>()
+                            .ToList();
                         var checkbox =
-                            CheckBoxItems
+                            checkBoxItems
                             .FirstOrDefault(_ => ((Rectangle)_.Tag).Contains(capture));
                         if (checkbox != null)
                         {
@@ -67,7 +69,7 @@ namespace checked_combo_box
                             if (delta < 30)
                             {
                                 checkbox.Checked = !checkbox.Checked;
-                                SendMessage(Handle, CB_SETCURSEL, CheckBoxItems.IndexOf(checkbox), 0);
+                                SendMessage(Handle, CB_SETCURSEL, checkBoxItems.IndexOf(checkbox), 0);
                                 updateText();
                                 return true;
                             }
@@ -87,8 +89,7 @@ namespace checked_combo_box
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
             base.OnDrawItem(e);
-            CheckBox checkbox;
-            checkbox = CheckBoxItems[e.Index];
+            var checkbox = (CheckBox)Items[e.Index];
             checkbox.Size = new Size(e.Bounds.Width - 10, e.Bounds.Height);
 
             POINT p = new POINT(e.Bounds.Left, e.Bounds.Top);
@@ -120,6 +121,7 @@ namespace checked_combo_box
                 {
                     if (!Equals(_internalSelectedIndex, value))
                     {
+                        var checkBoxItems = Items.Cast<CheckBox>().ToArray();
                         Debug.WriteLine($"Internal selected index: {value}");
                         _internalSelectedIndex = value;
                         var textB4 = Text;
@@ -129,18 +131,18 @@ namespace checked_combo_box
                         {
                             if (i != _internalSelectedIndex)
                             {
-                                checkbox = CheckBoxItems[i];
+                                checkbox = checkBoxItems[i];
                                 if (checkbox.ForeColor == Color.White)
                                 {
-                                    CheckBoxItems[i].BackColor = Color.White;
-                                    CheckBoxItems[i].ForeColor = SystemColors.ControlText;
+                                    checkbox.BackColor = Color.White;
+                                    checkbox.ForeColor = SystemColors.ControlText;
                                     SendMessage(Handle, CB_SETCURSEL, i, 0);
                                 }
                             }
                         }
                         if (SelectedIndex != -1)
                         {
-                            checkbox = CheckBoxItems[_internalSelectedIndex];
+                            checkbox = checkBoxItems[_internalSelectedIndex];
                             if (checkbox.ForeColor != Color.White)
                             {
                                 checkbox.BackColor = Color.CornflowerBlue;
@@ -156,7 +158,7 @@ namespace checked_combo_box
         }
         private void updateText()
         {
-            var checkedItems = CheckBoxItems.Where(_ => _.Checked).ToArray();
+            var checkedItems = Items.Cast<CheckBox>().Where(_ => _.Checked).ToArray();
             string preview;
             switch (checkedItems.Length)
             {
@@ -175,7 +177,6 @@ namespace checked_combo_box
                 BeginInvoke(new Action(() => SelectAll()));
             }
         }
-        BindingList<CheckBox> CheckBoxItems { get; } = new BindingList<CheckBox>();
 
         #region P I N V O K E
         [DllImport("user32.dll")]

@@ -39,7 +39,6 @@
             this.comboBox.Name = "comboBox";
             this.comboBox.Size = new System.Drawing.Size(243, 40);
             this.comboBox.TabIndex = 0;
-            this.comboBox.Text = "Blah Test";
             // 
             // MainForm
             // 
@@ -50,7 +49,6 @@
             this.Name = "MainForm";
             this.Text = "MainForm";
             this.ResumeLayout(false);
-
         }
 
         #endregion
