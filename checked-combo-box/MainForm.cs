@@ -26,12 +26,12 @@ namespace checked_combo_box
             DisplayMember = "Text";
 
             // Add items for testing purposes
-            CheckBoxItems.Add(new CheckBox { Text = "Essential" });
-            CheckBoxItems.Add(new CheckBox { Text = "Primary"});
-            CheckBoxItems.Add(new CheckBox { Text = "Evoke" });
-            CheckBoxItems.Add(new CheckBox { Text = "Retain" });
-            CheckBoxItems.Add(new CheckBox { Text = "Model" });
-            CheckBoxItems.Add(new CheckBox { Text = "Personality" });
+            CheckBoxItems.Add(new CheckBox { Text = "Essential", BackColor = Color.White });
+            CheckBoxItems.Add(new CheckBox { Text = "Primary", BackColor = Color.White });
+            CheckBoxItems.Add(new CheckBox { Text = "Evoke", BackColor = Color.White });
+            CheckBoxItems.Add(new CheckBox { Text = "Retain", BackColor = Color.White });
+            CheckBoxItems.Add(new CheckBox { Text = "Model", BackColor = Color.White });
+            CheckBoxItems.Add(new CheckBox { Text = "Personality", BackColor = Color.White });
         }
         protected override void OnCreateControl()
         {
@@ -89,17 +89,19 @@ namespace checked_combo_box
             base.OnDrawItem(e);
             CheckBox checkbox;
             checkbox = CheckBoxItems[e.Index];
-            checkbox.Size = e.Bounds.Size;
+            checkbox.Size = new Size(e.Bounds.Width - 10, e.Bounds.Height);
 
             POINT p = new POINT(e.Bounds.Left, e.Bounds.Top);
             ClientToScreen(_hwndList, ref p);
             checkbox.Tag = new Rectangle(
                 new Point(p.X, p.Y),
                 e.Bounds.Size);
-            using (var bitmap = new Bitmap(e.Bounds.Width, e.Bounds.Height))
+            
+            e.Graphics.FillRectangle(e.State.Equals(DrawItemState.Selected) ? Brushes.CornflowerBlue : Brushes.White, e.Bounds);
+            using (var bitmap = new Bitmap(checkbox.Size.Width, checkbox.Size.Height))
             {
                 checkbox.DrawToBitmap(bitmap, new Rectangle(Point.Empty, e.Bounds.Size));
-                e.Graphics.DrawImage(bitmap, e.Bounds);
+                e.Graphics.DrawImage(bitmap, new Rectangle(new Point(e.Bounds.Left + 10, e.Bounds.Top), checkbox.Size));
             }
         }
         IntPtr _hwndList;
@@ -107,7 +109,6 @@ namespace checked_combo_box
         const int WM_MOUSEMOVE = 0x0200;
         const int WM_LBUTTONDOWN = 0x0201;
         const int CB_SETCURSEL = 0x014E;
-        const int WM_PAINT = 0x000f;
 
         int _internalSelectedIndex = -1;
         public int SelectedIndexInDropDown
@@ -131,7 +132,7 @@ namespace checked_combo_box
                                 checkbox = CheckBoxItems[i];
                                 if (checkbox.ForeColor == Color.White)
                                 {
-                                    CheckBoxItems[i].BackColor = Color.Transparent;
+                                    CheckBoxItems[i].BackColor = Color.White;
                                     CheckBoxItems[i].ForeColor = SystemColors.ControlText;
                                     SendMessage(Handle, CB_SETCURSEL, i, 0);
                                 }
